@@ -1,0 +1,74 @@
+<div class="page-header">
+    <div class="container">
+        <h1><%= car.name %> <%= car.model %></h1>
+        <p><%= car.brand %> • <%= car.year %></p>
+    </div>
+</div>
+
+<section class="car-detail">
+    <div class="container">
+        <div class="car-detail-grid">
+            <div class="car-detail-image">
+                <img src="<%= car.image || '/images/default-car.jpg' %>" alt="<%= car.name %>" onerror="this.src='/images/default-car.jpg'">
+                <div class="car-rating">
+                    <i class="fas fa-star"></i>
+                    <span><%= car.rating || 0 %></span>
+                </div>
+            </div>
+            
+            <div class="car-detail-info">
+                <h2><%= car.name %> <%= car.model %></h2>
+                <p class="car-description"><%= car.description || 'Experience the perfect blend of comfort and performance with this vehicle.' %></p>
+                
+                <div class="car-specs">
+                    <div class="spec-item">
+                        <i class="fas fa-gas-pump"></i>
+                        <span><strong>Fuel Type</strong> <%= car.fuelType %></span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-users"></i>
+                        <span><strong>Seating</strong> <%= car.seatingCapacity %> seats</span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-cog"></i>
+                        <span><strong>Transmission</strong> <%= car.transmission %></span>
+                    </div>
+                    <div class="spec-item">
+                        <i class="fas fa-calendar"></i>
+                        <span><strong>Year</strong> <%= car.year %></span>
+                    </div>
+                </div>
+                
+                <% if (car.features && car.features.length > 0) { %>
+                <div class="car-features">
+                    <h4>Features</h4>
+                    <ul>
+                        <% car.features.forEach(feature => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= feature %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+                <% } %>
+                
+                <div class="car-price-box">
+                    <div class="price">
+                        $<%= car.pricePerDay %> <span>/ day</span>
+                    </div>
+                    <div class="availability-badge <%= car.availability ? 'available' : 'unavailable' %>">
+                        <i class="fas fa-<%= car.availability ? 'check-circle' : 'times-circle' %>"></i>
+                        <%= car.availability ? 'Available Now' : 'Not Available' %>
+                    </div>
+                    <% if (car.availability) { %>
+                        <a href="/booking?car=<%= car._id %>" class="btn btn-primary btn-block">
+                            <i class="fas fa-calendar-check"></i> Book This Car
+                        </a>
+                    <% } else { %>
+                        <button class="btn btn-secondary btn-block" disabled>
+                            <i class="fas fa-clock"></i> Currently Unavailable
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

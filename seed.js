@@ -1,4 +1,3 @@
-// seed.js - Place this in the root directory (car-rental-system/seed.js)
 const mongoose = require('mongoose');
 const Car = require('./models/Car');
 const dotenv = require('dotenv');
@@ -15,7 +14,10 @@ const sampleCars = [
         fuelType: 'Petrol',
         seatingCapacity: 5,
         transmission: 'Automatic',
-        image: '/images/cars/camry.jpg',
+        image: '/images/cars/img1.jpg',
+        quantity: 5,
+        availableQuantity: 5,
+        bookedQuantity: 0,
         availability: true,
         description: 'Comfortable and reliable sedan perfect for family trips.',
         features: ['GPS Navigation', 'Bluetooth', 'Backup Camera', 'Leather Seats'],
@@ -30,7 +32,10 @@ const sampleCars = [
         fuelType: 'Hybrid',
         seatingCapacity: 5,
         transmission: 'Automatic',
-        image: '/images/cars/crv.jpg',
+        image: '/images/cars/img2.jpg',
+        quantity: 3,
+        availableQuantity: 3,
+        bookedQuantity: 0,
         availability: true,
         description: 'Versatile SUV with excellent fuel economy and spacious interior.',
         features: ['AWD', 'Sunroof', 'Apple CarPlay', 'Heated Seats'],
@@ -45,7 +50,10 @@ const sampleCars = [
         fuelType: 'Electric',
         seatingCapacity: 5,
         transmission: 'Automatic',
-        image: '/images/cars/tesla3.jpg',
+        image: '/images/cars/img3.jpg',
+        quantity: 2,
+        availableQuantity: 2,
+        bookedQuantity: 0,
         availability: true,
         description: 'Premium electric sedan with cutting-edge technology and autopilot.',
         features: ['Autopilot', 'Premium Sound', 'Glass Roof', 'Phone Key'],
@@ -60,7 +68,10 @@ const sampleCars = [
         fuelType: 'Diesel',
         seatingCapacity: 7,
         transmission: 'Automatic',
-        image: '/images/cars/explorer.jpg',
+        image: '/images/cars/img4.jpg',
+        quantity: 4,
+        availableQuantity: 4,
+        bookedQuantity: 0,
         availability: true,
         description: 'Spacious SUV with third-row seating, perfect for large families.',
         features: ['4WD', 'Tow Package', 'Third Row', 'Rear AC'],
@@ -75,7 +86,10 @@ const sampleCars = [
         fuelType: 'Petrol',
         seatingCapacity: 5,
         transmission: 'Automatic',
-        image: '/images/cars/x5.jpg',
+        image: '/images/cars/img2.jpg',
+        quantity: 2,
+        availableQuantity: 2,
+        bookedQuantity: 0,
         availability: true,
         description: 'Luxury SUV with superior performance and advanced technology.',
         features: ['Air Suspension', 'Harmon Kardon', 'Panoramic Roof', 'Adaptive Cruise'],
@@ -90,7 +104,10 @@ const sampleCars = [
         fuelType: 'Petrol',
         seatingCapacity: 5,
         transmission: 'Automatic',
-        image: '/images/cars/cclass.jpg',
+        image: '/images/cars/img3.jpg',
+        quantity: 3,
+        availableQuantity: 3,
+        bookedQuantity: 0,
         availability: true,
         description: 'Elegant luxury sedan with premium comfort and advanced safety.',
         features: ['MBUX', 'LED Lights', 'Head-up Display', 'Parking Assist'],
@@ -103,10 +120,11 @@ const seedDB = async () => {
         await mongoose.connect(process.env.MONGODB_URI);
         await Car.deleteMany({});
         await Car.insertMany(sampleCars);
-        console.log('Database seeded successfully!');
+        console.log('✅ Database seeded successfully with 6 cars with quantities!');
+        console.log('📊 Each car has quantity, availableQuantity, and bookedQuantity');
         process.exit();
     } catch (error) {
-        console.error('Error seeding database:', error);
+        console.error('❌ Error seeding database:', error);
         process.exit(1);
     }
 };

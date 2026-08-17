@@ -1,16 +1,167 @@
+// ============================================
+// Show Modern Notification (for main.js)
+// ============================================
+function showModernNotification(message, type) {
+    type = type || 'success';
+    
+    var existing = document.querySelector('.modern-notification');
+    if (existing) {
+        existing.remove();
+    }
 
-const navToggle = document.querySelector('.nav-toggle');
-const navMenu = document.querySelector('.nav-menu');
+    var notification = document.createElement('div');
+    notification.className = 'modern-notification modern-notification-' + type;
+    
+    var icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+    
+    var colors = {
+        success: '#10b981',
+        error: '#ef4444',
+        warning: '#f59e0b',
+        info: '#3b82f6'
+    };
+    
+    var icon = icons[type] || icons.info;
+    var color = colors[type] || colors.info;
+    
+    notification.innerHTML = `
+        <div class="notification-icon" style="background:${color}20;color:${color};">
+            <i class="fas ${icon}"></i>
+        </div>
+        <div class="notification-content">
+            <p>${message}</p>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="notification-progress" style="background:${color};"></div>
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 30px;
+        right: 30px;
+        min-width: 350px;
+        max-width: 450px;
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.05);
+        z-index: 99999;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        border-left: 5px solid ${color};
+        overflow: hidden;
+    `;
+    
+    var style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .modern-notification .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .modern-notification .notification-content {
+            flex: 1;
+        }
+        .modern-notification .notification-content p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: #1f2937;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .modern-notification .notification-close {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .modern-notification .notification-close:hover {
+            color: #374151;
+        }
+        .modern-notification .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            animation: progressBar 4s linear forwards;
+            border-radius: 0 0 0 12px;
+        }
+        .modern-notification-success .notification-progress { background: #10b981; }
+        .modern-notification-error .notification-progress { background: #ef4444; }
+        .modern-notification-warning .notification-progress { background: #f59e0b; }
+        .modern-notification-info .notification-progress { background: #3b82f6; }
+        
+        @media (max-width: 480px) {
+            .modern-notification {
+                min-width: auto;
+                max-width: 90%;
+                right: 5%;
+                top: 20px;
+                padding: 14px 16px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(function() {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideOutRight 0.3s cubic-bezier(0.22, 1, 0.36, 1)';
+            setTimeout(function() {
+                notification.remove();
+            }, 300);
+        }
+    }, 4000);
+}
+
+// ============================================
+// Navigation Toggle (Mobile Menu)
+// ============================================
+var navToggle = document.querySelector('.nav-toggle');
+var navMenu = document.querySelector('.nav-menu');
 
 if (navToggle && navMenu) {
-    navToggle.addEventListener('click', () => {
+    navToggle.addEventListener('click', function() {
         navToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
     });
 }
 
 // Close nav menu when clicking outside
-document.addEventListener('click', (e) => {
+document.addEventListener('click', function(e) {
     if (!e.target.closest('.navbar') && navMenu && navMenu.classList.contains('active')) {
         navToggle.classList.remove('active');
         navMenu.classList.remove('active');
@@ -18,139 +169,139 @@ document.addEventListener('click', (e) => {
 });
 
 // Close nav menu when clicking a link
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
+var navLinks = document.querySelectorAll('.nav-link');
+for (var i = 0; i < navLinks.length; i++) {
+    navLinks[i].addEventListener('click', function() {
         if (navMenu && navMenu.classList.contains('active')) {
             navToggle.classList.remove('active');
             navMenu.classList.remove('active');
         }
     });
-});
-
-// ============================================
-// Smooth Scrolling for Anchor Links
-// ============================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
+}
 
 // ============================================
 // Load Featured Cars on Homepage
 // ============================================
-async function loadFeaturedCars() {
-    const container = document.getElementById('featuredCars');
+function loadFeaturedCars() {
+    var container = document.getElementById('featuredCars');
     if (!container) return;
 
-    try {
-        const response = await fetch('/api/cars/featured');
-        const cars = await response.json();
+    fetch('/api/cars/featured')
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(cars) {
+            if (cars.length === 0) {
+                container.innerHTML = '<p class="no-cars">No cars available at the moment.</p>';
+                return;
+            }
 
-        if (cars.length === 0) {
-            container.innerHTML = '<p class="no-cars">No cars available at the moment.</p>';
-            return;
-        }
-
-        container.innerHTML = cars.map(car => `
-            <div class="car-card">
-                <img src="${car.image || '/images/default-car.jpg'}" alt="${car.name}" class="car-image" onerror="this.src='/images/default-car.jpg'">
-                <div class="car-info">
-                    <h3 class="car-name">${car.name} ${car.model}</h3>
-                    <div class="car-details">
-                        <span><i class="fas fa-gas-pump"></i> ${car.fuelType}</span>
-                        <span><i class="fas fa-users"></i> ${car.seatingCapacity} seats</span>
-                        <span><i class="fas fa-cog"></i> ${car.transmission}</span>
-                        <span><i class="fas fa-calendar"></i> ${car.year}</span>
-                    </div>
-                    <div class="car-price">
-                        $${car.pricePerDay} <span>/ day</span>
-                    </div>
-                    <span class="availability ${car.availability ? 'available' : 'unavailable'}">
-                        ${car.availability ? 'Available' : 'Unavailable'}
-                    </span>
-                </div>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error loading featured cars:', error);
-        container.innerHTML = '<p class="error">Failed to load cars. Please refresh the page.</p>';
-    }
+            var html = '';
+            for (var i = 0; i < cars.length; i++) {
+                var car = cars[i];
+                html += '<div class="car-card">';
+                html += '<img src="' + (car.image || '/images/default-car.jpg') + '" alt="' + car.name + '" class="car-image" onerror="this.src=\'/images/default-car.jpg\'">';
+                html += '<div class="car-info">';
+                html += '<h3 class="car-name">' + car.name + ' ' + car.model + '</h3>';
+                html += '<div class="car-details">';
+                html += '<span><i class="fas fa-gas-pump"></i> ' + car.fuelType + '</span>';
+                html += '<span><i class="fas fa-users"></i> ' + car.seatingCapacity + ' seats</span>';
+                html += '<span><i class="fas fa-cog"></i> ' + car.transmission + '</span>';
+                html += '<span><i class="fas fa-calendar"></i> ' + car.year + '</span>';
+                html += '</div>';
+                html += '<div class="car-price">$' + car.pricePerDay + ' <span>/ day</span></div>';
+                html += '<span class="availability ' + (car.availability ? 'available' : 'unavailable') + '">' + (car.availability ? 'Available' : 'Unavailable') + '</span>';
+                if (car.availability) {
+                    html += '<a href="/booking?car=' + car._id + '" class="btn btn-primary btn-sm" style="margin-top:10px;display:inline-block;">Book Now</a>';
+                }
+                html += '</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        })
+        .catch(function(error) {
+            console.error('Error loading featured cars:', error);
+            container.innerHTML = '<p class="error">Failed to load cars. Please refresh the page.</p>';
+        });
 }
 
 // Load featured cars when homepage loads
 if (document.getElementById('featuredCars')) {
-    document.addEventListener('DOMContentLoaded', loadFeaturedCars);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadFeaturedCars);
+    } else {
+        loadFeaturedCars();
+    }
 }
 
 // ============================================
 // Load Cars on Cars Page
 // ============================================
-async function loadAllCars() {
-    const container = document.getElementById('carGrid');
-    if (!container) return;
-
-    try {
-        // Get current filter values
-        const search = document.getElementById('searchInput')?.value || '';
-        const price = document.getElementById('priceFilter')?.value || 'all';
-        const fuel = document.getElementById('fuelFilter')?.value || 'all';
-        const seating = document.getElementById('seatingFilter')?.value || 'all';
-
-        // Build query string
-        const params = new URLSearchParams({
-            search,
-            price,
-            fuel,
-            seating
-        });
-
-        const response = await fetch(`/api/cars?${params.toString()}`);
-        const cars = await response.json();
-
-        if (cars.length === 0) {
-            container.innerHTML = `
-                <div class="no-results">
-                    <i class="fas fa-car"></i>
-                    <h3>No cars found</h3>
-                    <p>Try adjusting your search or filters</p>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = cars.map(car => `
-            <div class="car-card">
-                <img src="${car.image || '/images/default-car.jpg'}" alt="${car.name}" class="car-image" onerror="this.src='/images/default-car.jpg'">
-                <div class="car-info">
-                    <h3 class="car-name">${car.name} ${car.model}</h3>
-                    <div class="car-details">
-                        <span><i class="fas fa-gas-pump"></i> ${car.fuelType}</span>
-                        <span><i class="fas fa-users"></i> ${car.seatingCapacity} seats</span>
-                        <span><i class="fas fa-cog"></i> ${car.transmission}</span>
-                        <span><i class="fas fa-calendar"></i> ${car.year}</span>
-                    </div>
-                    <div class="car-price">
-                        $${car.pricePerDay} <span>/ day</span>
-                    </div>
-                    <span class="availability ${car.availability ? 'available' : 'unavailable'}">
-                        ${car.availability ? 'Available' : 'Unavailable'}
-                    </span>
-                    ${car.availability ? `<a href="/booking" class="btn btn-primary btn-sm">Book Now</a>` : ''}
-                </div>
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error loading cars:', error);
-        container.innerHTML = '<p class="error">Failed to load cars. Please refresh the page.</p>';
+function loadAllCars() {
+    var container = document.getElementById('carGrid');
+    if (!container) {
+        return;
     }
+
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 0;"><div style="width:50px;height:50px;border:4px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;"></div><p style="margin-top:1rem;color:#6b7280;">Loading cars...</p></div>';
+
+    var searchInput = document.getElementById('searchInput');
+    var priceFilter = document.getElementById('priceFilter');
+    var fuelFilter = document.getElementById('fuelFilter');
+    var seatingFilter = document.getElementById('seatingFilter');
+
+    var search = searchInput ? searchInput.value : '';
+    var price = priceFilter ? priceFilter.value : 'all';
+    var fuel = fuelFilter ? fuelFilter.value : 'all';
+    var seating = seatingFilter ? seatingFilter.value : 'all';
+
+    var url = '/api/cars?search=' + encodeURIComponent(search) + '&price=' + encodeURIComponent(price) + '&fuel=' + encodeURIComponent(fuel) + '&seating=' + encodeURIComponent(seating);
+
+    fetch(url)
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Server returned ' + response.status);
+            }
+            return response.json();
+        })
+        .then(function(cars) {
+            if (cars.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:4rem 0;"><i class="fas fa-car" style="font-size:3rem;color:#d1d5db;margin-bottom:1rem;"></i><h3 style="font-size:1.5rem;color:#6b7280;margin-bottom:0.5rem;">No cars found</h3><p style="color:#9ca3af;">Try adjusting your search or filters</p></div>';
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < cars.length; i++) {
+                var car = cars[i];
+                html += '<div class="car-card">';
+                html += '<img src="' + (car.image || '/images/default-car.jpg') + '" alt="' + car.name + '" class="car-image" onerror="this.src=\'/images/default-car.jpg\'">';
+                html += '<div class="car-info">';
+                html += '<h3 class="car-name">' + car.name + ' ' + car.model + '</h3>';
+                html += '<div class="car-details">';
+                html += '<span><i class="fas fa-gas-pump"></i> ' + car.fuelType + '</span>';
+                html += '<span><i class="fas fa-users"></i> ' + car.seatingCapacity + ' seats</span>';
+                html += '<span><i class="fas fa-cog"></i> ' + car.transmission + '</span>';
+                html += '<span><i class="fas fa-calendar"></i> ' + car.year + '</span>';
+                html += '</div>';
+                html += '<div class="car-price">$' + car.pricePerDay + ' <span>/ day</span></div>';
+                html += '<span class="availability ' + (car.availability ? 'available' : 'unavailable') + '">' + (car.availability ? 'Available' : 'Unavailable') + '</span>';
+                if (car.availability) {
+                    html += '<a href="/booking?car=' + car._id + '" class="btn btn-primary btn-sm" style="margin-top:10px;display:inline-block;width:100%;text-align:center;">Book Now</a>';
+                }
+                html += '</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+
+            var resultCount = document.getElementById('resultCount');
+            if (resultCount) {
+                resultCount.textContent = 'Showing ' + cars.length + ' car' + (cars.length > 1 ? 's' : '');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error loading cars:', error);
+            container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem 0;"><i class="fas fa-exclamation-circle" style="font-size:3rem;color:#ef4444;margin-bottom:1rem;"></i><h3 style="color:#ef4444;">Failed to load cars</h3><p style="color:#6b7280;">' + error.message + '</p><button onclick="location.reload()" class="btn btn-primary" style="margin-top:1rem;"><i class="fas fa-sync"></i> Refresh</button></div>';
+        });
 }
 
 // ============================================
@@ -160,128 +311,58 @@ function filterCars() {
     loadAllCars();
 }
 
-// Debounce function for search
 function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
+    var timeout;
+    return function() {
+        var context = this;
+        var args = arguments;
         clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        timeout = setTimeout(function() {
+            func.apply(context, args);
+        }, wait);
     };
 }
 
 // Setup filters on cars page
 if (document.getElementById('carGrid')) {
-    document.addEventListener('DOMContentLoaded', loadAllCars);
-    
-    // Search input with debounce
-    const searchInput = document.getElementById('searchInput');
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadAllCars);
+    } else {
+        loadAllCars();
+    }
+
+    var searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('input', debounce(filterCars, 300));
+        var debouncedFilter = debounce(filterCars, 300);
+        searchInput.addEventListener('input', debouncedFilter);
     }
-    
-    // Filter dropdowns
-    document.getElementById('priceFilter')?.addEventListener('change', filterCars);
-    document.getElementById('fuelFilter')?.addEventListener('change', filterCars);
-    document.getElementById('seatingFilter')?.addEventListener('change', filterCars);
-}
 
-// ============================================
-// Utility Functions
-// ============================================
+    var priceFilter = document.getElementById('priceFilter');
+    var fuelFilter = document.getElementById('fuelFilter');
+    var seatingFilter = document.getElementById('seatingFilter');
 
-// Format date
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// Format currency
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-    }).format(amount);
-};
-
-// Show notification
-function showNotification(message, type = 'success') {
-    const existing = document.querySelector('.notification');
-    if (existing) existing.remove();
+    if (priceFilter) priceFilter.addEventListener('change', filterCars);
+    if (fuelFilter) fuelFilter.addEventListener('change', filterCars);
+    if (seatingFilter) seatingFilter.addEventListener('change', filterCars);
     
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    const colors = {
-        success: '#10b981',
-        error: '#ef4444',
-        warning: '#f59e0b',
-        info: '#3b82f6'
-    };
-    
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 2rem;
-        background: ${colors[type] || colors.info};
-        color: white;
-        border-radius: 8px;
-        font-weight: 500;
-        z-index: 10000;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        animation: slideIn 0.3s ease;
-        max-width: 400px;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto dismiss after 5 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 5000);
-}
-
-// Add animation styles
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
+    var resetBtn = document.getElementById('resetFilters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (searchInput) searchInput.value = '';
+            if (priceFilter) priceFilter.value = 'all';
+            if (fuelFilter) fuelFilter.value = 'all';
+            if (seatingFilter) seatingFilter.value = 'all';
+            filterCars();
+        });
     }
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+}
 
 // ============================================
 // Scroll to Top Button
 // ============================================
-const scrollButton = document.getElementById('scrollToTop');
+var scrollButton = document.getElementById('scrollToTop');
 if (scrollButton) {
-    window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', function() {
         if (window.scrollY > 300) {
             scrollButton.style.display = 'flex';
         } else {
@@ -289,7 +370,7 @@ if (scrollButton) {
         }
     });
 
-    scrollButton.addEventListener('click', () => {
+    scrollButton.addEventListener('click', function() {
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -297,62 +378,9 @@ if (scrollButton) {
     });
 }
 
-// ============================================
-// Lazy Loading Images
-// ============================================
-if ('IntersectionObserver' in window) {
-    const images = document.querySelectorAll('img[data-src]');
-    const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target;
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-                observer.unobserve(img);
-            }
-        });
-    });
-    
-    images.forEach(img => imageObserver.observe(img));
-}
-
-// ============================================
-// Form Auto-save (for booking form)
-// ============================================
-if (document.getElementById('bookingForm')) {
-    const form = document.getElementById('bookingForm');
-    const inputs = form.querySelectorAll('input, select, textarea');
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', () => {
-            const data = new FormData(form);
-            const formData = {};
-            data.forEach((value, key) => {
-                formData[key] = value;
-            });
-            try {
-                localStorage.setItem('bookingFormData', JSON.stringify(formData));
-            } catch (e) {
-                // Ignore if localStorage is not available
-            }
-        });
-    });
-    
-    // Load saved data
-    try {
-        const saved = localStorage.getItem('bookingFormData');
-        if (saved) {
-            const data = JSON.parse(saved);
-            Object.keys(data).forEach(key => {
-                const input = form.querySelector(`[name="${key}"]`);
-                if (input) {
-                    input.value = data[key];
-                }
-            });
-        }
-    } catch (e) {
-        // Ignore if localStorage is not available
-    }
-}
+// Add spin animation
+var style = document.createElement('style');
+style.textContent = '@keyframes spin{to{transform:rotate(360deg);}}';
+document.head.appendChild(style);
 
 console.log('✅ Car Rental System loaded successfully!');

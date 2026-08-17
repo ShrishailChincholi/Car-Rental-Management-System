@@ -1,15 +1,18 @@
-// controllers/carController.js
 const Car = require('../models/Car');
 
+
 // Get all cars with filters
+
 exports.getAllCars = async (req, res) => {
     try {
+        console.log('📥 getAllCars called with query:', req.query);
+        
         const { search, price, fuel, seating } = req.query;
         
         let query = {};
         
-        // Search by name or model
-        if (search) {
+        // Search by name, model, or brand
+        if (search && search !== '') {
             query.$or = [
                 { name: { $regex: search, $options: 'i' } },
                 { model: { $regex: search, $options: 'i' } },
@@ -32,6 +35,7 @@ exports.getAllCars = async (req, res) => {
             }
         }
         
+        // Sort by price
         let sort = {};
         if (price === 'low') {
             sort.pricePerDay = 1;
@@ -39,58 +43,87 @@ exports.getAllCars = async (req, res) => {
             sort.pricePerDay = -1;
         }
         
+        console.log('🔍 Query:', JSON.stringify(query));
+        console.log('📊 Sort:', JSON.stringify(sort));
+        
         const cars = await Car.find(query).sort(sort);
         
-        // If this is an API request (AJAX), return JSON
-        if (req.xhr || req.headers.accept?.includes('application/json')) {
+        console.log(`✅ Found ${cars.length} cars`);
+        
+        // If API request, return JSON
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
             return res.json(cars);
         }
         
+        // Render the cars page
         res.render('pages/cars', {
             title: 'Our Cars',
-            cars
+            cars: cars
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to load cars'
+        console.error('❌ Error in getAllCars:', error);
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to load cars',
+                error: error.message
+            });
+        }
+        res.status(500).render('pages/error', {
+            title: 'Error',
+            message: 'Failed to load cars: ' + error.message
         });
     }
 };
 
-// Get featured cars for homepage
+// ============================================
+// Get featured cars
+// ============================================
 exports.getFeaturedCars = async (req, res) => {
     try {
+        console.log('📥 getFeaturedCars called');
+        
         const cars = await Car.find({ availability: true })
             .limit(6)
             .sort({ rating: -1 });
+        
+        console.log(`✅ Found ${cars.length} featured cars`);
         res.json(cars);
     } catch (error) {
-        console.error(error);
+        console.error('❌ Error in getFeaturedCars:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to load featured cars'
+            message: 'Failed to load featured cars',
+            error: error.message
         });
     }
 };
 
+// ============================================
 // Get available cars for booking
+// ============================================
 exports.getAvailableCars = async (req, res) => {
     try {
+        console.log('📥 getAvailableCars called');
+        
         const cars = await Car.find({ availability: true })
             .select('_id name model pricePerDay');
+        
+        console.log(`✅ Found ${cars.length} available cars`);
         res.json(cars);
     } catch (error) {
-        console.error(error);
+        console.error('❌ Error in getAvailableCars:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to load available cars'
+            message: 'Failed to load available cars',
+            error: error.message
         });
     }
 };
 
-// Get a single car by ID
+// ============================================
+// Get car by ID
+// ============================================
 exports.getCarById = async (req, res) => {
     try {
         const car = await Car.findById(req.params.id);
@@ -102,7 +135,7 @@ exports.getCarById = async (req, res) => {
         }
         res.json(car);
     } catch (error) {
-        console.error(error);
+        console.error('Error in getCarById:', error);
         res.status(500).json({
             success: false,
             message: 'Failed to load car details'
@@ -110,22 +143,23 @@ exports.getCarById = async (req, res) => {
     }
 };
 
-// Get car detail page
+// ============================================
+// Show car detail page
+// ============================================
 exports.getCarDetailPage = async (req, res) => {
     try {
         const car = await Car.findById(req.params.id);
         if (!car) {
-            return res.status(404).render('pages/error', {
-                title: 'Not Found',
-                message: 'Car not found'
+            return res.status(404).render('pages/404', {
+                title: 'Car Not Found'
             });
         }
         res.render('pages/car-detail', {
-            title: car.name,
-            car
+            title: car.name + ' ' + car.model,
+            car: car
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error in getCarDetailPage:', error);
         res.status(500).render('pages/error', {
             title: 'Error',
             message: 'Failed to load car details'

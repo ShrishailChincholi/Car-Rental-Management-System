@@ -1,0 +1,25 @@
+<header class="header" id="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <a href="/" class="logo">
+                    <i class="fas fa-car"></i>
+                    <span>RentCar</span>
+                </a>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="/" class="nav-link <%= title === 'Home' ? 'active' : '' %>">Home</a></li>
+                <li><a href="/cars" class="nav-link <%= title === 'Our Cars' ? 'active' : '' %>">Cars</a></li>
+                <li><a href="/booking" class="nav-link <%= title === 'Book a Car' ? 'active' : '' %>">Book Now</a></li>
+                <li><a href="/about" class="nav-link <%= title === 'About Us' ? 'active' : '' %>">About</a></li>
+            </ul>
+            
+            <div class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+</header>

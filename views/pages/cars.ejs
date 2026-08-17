@@ -1,0 +1,64 @@
+<div class="page-header">
+    <div class="container">
+        <h1>Our Fleet</h1>
+        <p>Choose from our wide selection of quality vehicles</p>
+    </div>
+</div>
+
+<section class="car-listing">
+    <div class="container">
+        <div class="filter-section">
+            <div class="filter-header">
+                <h3><i class="fas fa-filter"></i> Filter Cars</h3>
+                <button class="btn-reset" id="resetFilters">Reset All</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search cars by name, model, or brand...">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label for="priceFilter">Price</label>
+                    <select id="priceFilter">
+                        <option value="all">All Prices</option>
+                        <option value="low">Low to High</option>
+                        <option value="high">High to Low</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="fuelFilter">Fuel Type</label>
+                    <select id="fuelFilter">
+                        <option value="all">All Fuel Types</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="seatingFilter">Seating Capacity</label>
+                    <select id="seatingFilter">
+                        <option value="all">All Seating</option>
+                        <option value="2">2 Seats</option>
+                        <option value="4">4 Seats</option>
+                        <option value="5">5 Seats</option>
+                        <option value="7">7 Seats</option>
+                        <option value="8">8+ Seats</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-results">
+                <span id="resultCount">Loading cars...</span>
+            </div>
+        </div>
+        
+        <div class="car-grid" id="carGrid">
+            <!-- Cars will be loaded dynamically -->
+        </div>
+    </div>
+</section>

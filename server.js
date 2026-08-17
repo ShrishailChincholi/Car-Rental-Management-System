@@ -10,8 +10,6 @@ dotenv.config();
 
 // Import routes
 const indexRoutes = require('./routes/index');
-const carRoutes = require('./routes/cars');
-const bookingRoutes = require('./routes/booking');
 
 // Initialize app
 const app = express();
@@ -33,16 +31,10 @@ app.set('layout', 'layouts/main');
 
 // Routes
 app.use('/', indexRoutes);
-app.use('/cars', carRoutes);
-app.use('/booking', bookingRoutes);
-
-// Error handling middleware
-app.use((req, res) => {
-    res.status(404).render('pages/404', { title: 'Page Not Found' });
-});
 
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📱 Press Ctrl+C to stop`);
 });

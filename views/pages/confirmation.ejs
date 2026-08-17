@@ -1,0 +1,118 @@
+<div class="page-header confirmation-header">
+    <div class="container">
+        <div class="confirmation-icon-large">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>Booking Confirmed!</h1>
+        <p>Your car rental has been successfully booked</p>
+    </div>
+</div>
+
+<section class="confirmation-section">
+    <div class="container">
+        <div class="confirmation-card">
+            <div class="confirmation-message">
+                <h2>Thank You, <%= booking.user.name %>!</h2>
+                <p>Your booking has been confirmed. We've sent a confirmation email to <strong><%= booking.user.email %></strong></p>
+                <p>Please check your email for detailed instructions.</p>
+            </div>
+            
+            <div class="booking-summary">
+                <h3><i class="fas fa-file-invoice"></i> Booking Details</h3>
+                
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="label">Booking ID</span>
+                        <span class="value"><%= booking._id %></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Car</span>
+                        <span class="value"><%= booking.carName %></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Rental Period</span>
+                        <span class="value">
+                            <%= new Date(booking.rentalDates.startDate).toLocaleDateString('en-US', { 
+                                weekday: 'short', 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                            }) %> 
+                            to 
+                            <%= new Date(booking.rentalDates.endDate).toLocaleDateString('en-US', { 
+                                weekday: 'short', 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                            }) %>
+                        </span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Days</span>
+                        <span class="value">
+                            <%= Math.ceil((new Date(booking.rentalDates.endDate) - new Date(booking.rentalDates.startDate)) / (1000 * 60 * 60 * 24)) %> days
+                        </span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Total Price</span>
+                        <span class="value price">$<%= booking.totalPrice %></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Status</span>
+                        <span class="value status-badge status-<%= booking.status.toLowerCase() %>">
+                            <i class="fas fa-<%= booking.status === 'Pending' ? 'clock' : 'check-circle' %>"></i>
+                            <%= booking.status %>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="customer-details">
+                <h3><i class="fas fa-user"></i> Customer Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="label">Name</span>
+                        <span class="value"><%= booking.user.name %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Email</span>
+                        <span class="value"><%= booking.user.email %></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Phone</span>
+                        <span class="value"><%= booking.user.phone %></span>
+                    </div>
+                    <% if (booking.user.address) { %>
+                    <div class="detail-item">
+                        <span class="label">Address</span>
+                        <span class="value"><%= booking.user.address %></span>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <% if (booking.specialRequests) { %>
+            <div class="special-requests">
+                <h3><i class="fas fa-comment"></i> Special Requests</h3>
+                <p><%= booking.specialRequests %></p>
+            </div>
+            <% } %>
+            
+            <div class="confirmation-actions">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Return Home
+                </a>
+                <a href="/cars" class="btn btn-secondary">
+                    <i class="fas fa-car"></i> Browse More Cars
+                </a>
+                <button class="btn btn-outline" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Details
+                </button>
+            </div>
+            
+            <div class="confirmation-note">
+                <p><i class="fas fa-info-circle"></i> Please keep this confirmation for your records. If you need to cancel or modify your booking, please contact us at least 24 hours in advance.</p>
+            </div>
+        </div>
+    </div>
+</section>

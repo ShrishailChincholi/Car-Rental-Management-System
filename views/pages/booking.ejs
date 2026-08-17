@@ -1,0 +1,248 @@
+<div class="page-header">
+    <div class="container">
+        <h1>Book Your Car</h1>
+        <p>Fill in the details below to reserve your perfect vehicle</p>
+    </div>
+</div>
+
+<section class="booking-section">
+    <div class="container">
+        <div class="booking-container">
+            <div class="booking-form-container">
+                <div class="booking-progress">
+                    <div class="progress-step active">
+                        <span class="step-number">1</span>
+                        <span class="step-label">Select Car</span>
+                    </div>
+                    <div class="progress-step">
+                        <span class="step-number">2</span>
+                        <span class="step-label">Your Details</span>
+                    </div>
+                    <div class="progress-step">
+                        <span class="step-number">3</span>
+                        <span class="step-label">Confirm</span>
+                    </div>
+                </div>
+                
+                <form id="bookingForm" class="booking-form">
+                    <div class="form-group">
+                        <label for="carSelect">
+                            <i class="fas fa-car"></i> Select Car
+                            <span class="required">*</span>
+                        </label>
+                        <select id="carSelect" name="carSelect" required>
+                            <option value="">Choose a car...</option>
+                            <% if (cars && cars.length > 0) { %>
+                                <% for (var i = 0; i < cars.length; i++) { %>
+                                    <% 
+                                        var isSelected = false;
+                                        if (selectedCar && selectedCar._id) {
+                                            var selectedId = selectedCar._id.toString();
+                                            var carId = cars[i]._id.toString();
+                                            if (selectedId === carId) {
+                                                isSelected = true;
+                                            }
+                                        }
+                                    %>
+                                    <option value="<%= cars[i]._id %>" 
+                                            data-price="<%= cars[i].pricePerDay %>" 
+                                            data-quantity="<%= cars[i].availableQuantity %>"
+                                            <%= isSelected ? 'selected' : '' %>>
+                                        <%= cars[i].name %> <%= cars[i].model %> - $<%= cars[i].pricePerDay %>/day 
+                                        (<%= cars[i].availableQuantity %> available)
+                                    </option>
+                                <% } %>
+                            <% } %>
+                        </select>
+                        <span class="error-message" id="carSelectError"></span>
+                    </div>
+                    
+                    <!-- Show selected car info -->
+                    <% if (selectedCar) { %>
+                        <div class="selected-car-info" style="background:#f0f7ff;padding:1rem 1.5rem;border-radius:8px;margin-bottom:1.5rem;border-left:4px solid #2563eb;">
+                            <h4 style="margin-bottom:0.3rem;color:#2563eb;font-size:1rem;">
+                                <i class="fas fa-check-circle"></i> Selected Car:
+                            </h4>
+                            <p style="margin:0;font-size:1.1rem;font-weight:600;">
+                                <%= selectedCar.name %> <%= selectedCar.model %>
+                            </p>
+                            <p style="margin:0;color:#6b7280;font-size:0.9rem;">
+                                <i class="fas fa-gas-pump"></i> <%= selectedCar.fuelType %> • 
+                                <i class="fas fa-users"></i> <%= selectedCar.seatingCapacity %> seats • 
+                                <i class="fas fa-cog"></i> <%= selectedCar.transmission %> • 
+                                <i class="fas fa-dollar-sign"></i> $<%= selectedCar.pricePerDay %>/day • 
+                                <i class="fas fa-boxes"></i> <%= selectedCar.availableQuantity %> available
+                            </p>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Quantity Selector -->
+                    <div class="form-group">
+                        <label for="quantity">
+                            <i class="fas fa-boxes"></i> Number of Cars
+                            <span class="required">*</span>
+                        </label>
+                        <div class="quantity-selector">
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(-1)">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="<%= selectedCar ? selectedCar.availableQuantity : 10 %>" required>
+                            <button type="button" class="quantity-btn" onclick="updateQuantity(1)">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <span class="error-message" id="quantityError"></span>
+                        <small style="color:#6b7280;font-size:0.85rem;">
+                            Maximum available: <%= selectedCar ? selectedCar.availableQuantity : 0 %> cars
+                        </small>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">
+                                <i class="fas fa-user"></i> Full Name
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                            <span class="error-message" id="nameError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">
+                                <i class="fas fa-envelope"></i> Email Address
+                                <span class="required">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                            <span class="error-message" id="emailError"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">
+                                <i class="fas fa-phone"></i> Phone Number
+                                <span class="required">*</span>
+                            </label>
+                            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                            <span class="error-message" id="phoneError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">
+                                <i class="fas fa-map-marker-alt"></i> Address
+                            </label>
+                            <input type="text" id="address" name="address" placeholder="Enter your address">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">
+                                <i class="fas fa-calendar-alt"></i> Start Date
+                                <span class="required">*</span>
+                            </label>
+                            <input type="date" id="startDate" name="startDate" required>
+                            <span class="error-message" id="startDateError"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">
+                                <i class="fas fa-calendar-alt"></i> End Date
+                                <span class="required">*</span>
+                            </label>
+                            <input type="date" id="endDate" name="endDate" required>
+                            <span class="error-message" id="endDateError"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="totalPrice">
+                            <i class="fas fa-dollar-sign"></i> Total Price
+                        </label>
+                        <div id="totalPrice" class="total-price-display" style="display: none;">
+                            $0 <span>for 0 days, 0 cars</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="specialRequests">
+                            <i class="fas fa-comment"></i> Special Requests
+                        </label>
+                        <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Any special requests or requirements..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Book Now
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Clear
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="booking-sidebar">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Booking Information</h3>
+                    <ul class="info-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Free Cancellation</strong>
+                                <span>Up to 24 hours before pickup</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>No Hidden Charges</strong>
+                                <span>Transparent pricing with no surprises</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Insurance Included</strong>
+                                <span>Full coverage for your peace of mind</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>24/7 Support</strong>
+                                <span>Round-the-clock customer assistance</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <strong>Free Pickup & Drop</strong>
+                                <span>Convenient pickup and drop-off service</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="info-card">
+                    <h3><i class="fas fa-shield-alt"></i> Need Help?</h3>
+                    <p>Our support team is available 24/7 to assist you with any questions.</p>
+                    <div class="contact-buttons">
+                        <a href="tel:+15551234567" class="btn btn-outline btn-sm">
+                            <i class="fas fa-phone"></i> Call Us
+                        </a>
+                        <a href="mailto:info@rentcar.com" class="btn btn-outline btn-sm">
+                            <i class="fas fa-envelope"></i> Email
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Load components.js if not already loaded
+    if (typeof createCarCard === 'undefined') {
+        var script = document.createElement('script');
+        script.src = '/js/components.js';
+        document.head.appendChild(script);
+    }
+</script>
