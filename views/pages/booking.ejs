@@ -25,6 +25,7 @@
                 </div>
                 
                 <form id="bookingForm" class="booking-form">
+                    <!-- Car Selection -->
                     <div class="form-group">
                         <label for="carSelect">
                             <i class="fas fa-car"></i> Select Car
@@ -47,6 +48,13 @@
                                     <option value="<%= cars[i]._id %>" 
                                             data-price="<%= cars[i].pricePerDay %>" 
                                             data-quantity="<%= cars[i].availableQuantity %>"
+                                            data-name="<%= cars[i].name %>"
+                                            data-model="<%= cars[i].model %>"
+                                            data-fuel="<%= cars[i].fuelType %>"
+                                            data-seats="<%= cars[i].seatingCapacity %>"
+                                            data-trans="<%= cars[i].transmission %>"
+                                            data-year="<%= cars[i].year %>"
+                                            data-image="<%= cars[i].image || '/images/default-car.jpg' %>"
                                             <%= isSelected ? 'selected' : '' %>>
                                         <%= cars[i].name %> <%= cars[i].model %> - $<%= cars[i].pricePerDay %>/day 
                                         (<%= cars[i].availableQuantity %> available)
@@ -57,24 +65,45 @@
                         <span class="error-message" id="carSelectError"></span>
                     </div>
                     
-                    <!-- Show selected car info -->
-                    <% if (selectedCar) { %>
-                        <div class="selected-car-info" style="background:#f0f7ff;padding:1rem 1.5rem;border-radius:8px;margin-bottom:1.5rem;border-left:4px solid #2563eb;">
-                            <h4 style="margin-bottom:0.3rem;color:#2563eb;font-size:1rem;">
-                                <i class="fas fa-check-circle"></i> Selected Car:
-                            </h4>
-                            <p style="margin:0;font-size:1.1rem;font-weight:600;">
-                                <%= selectedCar.name %> <%= selectedCar.model %>
-                            </p>
-                            <p style="margin:0;color:#6b7280;font-size:0.9rem;">
-                                <i class="fas fa-gas-pump"></i> <%= selectedCar.fuelType %> • 
-                                <i class="fas fa-users"></i> <%= selectedCar.seatingCapacity %> seats • 
-                                <i class="fas fa-cog"></i> <%= selectedCar.transmission %> • 
-                                <i class="fas fa-dollar-sign"></i> $<%= selectedCar.pricePerDay %>/day • 
-                                <i class="fas fa-boxes"></i> <%= selectedCar.availableQuantity %> available
-                            </p>
-                        </div>
-                    <% } %>
+                    <!-- Selected Car Info - DYNAMICALLY UPDATED -->
+                    <div id="selectedCarInfo" class="selected-car-info">
+                        <% if (selectedCar) { %>
+                            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+                                <i class="fas fa-check-circle" style="color: #2563eb; font-size: 1.2rem;"></i>
+                                <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 600;">Selected Car:</h4>
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem;">
+                                <span style="font-size: 1.2rem; font-weight: 700; color: #0f172a;">
+                                    <%= selectedCar.name %> <%= selectedCar.model %>
+                                </span>
+                                <span style="background: #2563eb; color: white; padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">
+                                    $<%= selectedCar.pricePerDay %>/day
+                                </span>
+                                <span style="color: #475569; font-size: 0.9rem;">
+                                    <i class="fas fa-gas-pump" style="color: #2563eb;"></i> <%= selectedCar.fuelType %>
+                                </span>
+                                <span style="color: #475569; font-size: 0.9rem;">
+                                    <i class="fas fa-users" style="color: #2563eb;"></i> <%= selectedCar.seatingCapacity %> seats
+                                </span>
+                                <span style="color: #475569; font-size: 0.9rem;">
+                                    <i class="fas fa-cog" style="color: #2563eb;"></i> <%= selectedCar.transmission %>
+                                </span>
+                                <span style="color: #475569; font-size: 0.9rem;">
+                                    <i class="fas fa-calendar" style="color: #2563eb;"></i> <%= selectedCar.year %>
+                                </span>
+                                <span style="background: #d1fae5; color: #065f46; padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">
+                                    <i class="fas fa-boxes"></i> <%= selectedCar.availableQuantity %> available
+                                </span>
+                            </div>
+                        <% } else { %>
+                            <div style="text-align: center; padding: 0.5rem 0;">
+                                <p style="color: #64748b; margin: 0;">
+                                    <i class="fas fa-info-circle" style="color: #94a3b8;"></i>
+                                    Please select a car from the dropdown above
+                                </p>
+                            </div>
+                        <% } %>
+                    </div>
                     
                     <!-- Quantity Selector -->
                     <div class="form-group">
@@ -93,10 +122,11 @@
                         </div>
                         <span class="error-message" id="quantityError"></span>
                         <small style="color:#6b7280;font-size:0.85rem;">
-                            Maximum available: <%= selectedCar ? selectedCar.availableQuantity : 0 %> cars
+                            <i class="fas fa-info-circle"></i> Maximum available: <span id="maxAvailable"><%= selectedCar ? selectedCar.availableQuantity : 0 %></span> cars
                         </small>
                     </div>
                     
+                    <!-- User Details -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="name">
@@ -133,6 +163,7 @@
                         </div>
                     </div>
                     
+                    <!-- Rental Dates -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="startDate">
@@ -152,6 +183,7 @@
                         </div>
                     </div>
                     
+                    <!-- Total Price -->
                     <div class="form-group">
                         <label for="totalPrice">
                             <i class="fas fa-dollar-sign"></i> Total Price
@@ -161,6 +193,7 @@
                         </div>
                     </div>
                     
+                    <!-- Special Requests -->
                     <div class="form-group">
                         <label for="specialRequests">
                             <i class="fas fa-comment"></i> Special Requests
@@ -168,6 +201,7 @@
                         <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Any special requests or requirements..."></textarea>
                     </div>
                     
+                    <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-check"></i> Book Now
@@ -179,6 +213,7 @@
                 </form>
             </div>
             
+            <!-- Booking Sidebar -->
             <div class="booking-sidebar">
                 <div class="info-card">
                     <h3><i class="fas fa-info-circle"></i> Booking Information</h3>
@@ -223,7 +258,9 @@
                 
                 <div class="info-card">
                     <h3><i class="fas fa-shield-alt"></i> Need Help?</h3>
-                    <p>Our support team is available 24/7 to assist you with any questions.</p>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">
+                        Our support team is available 24/7 to assist you with any questions.
+                    </p>
                     <div class="contact-buttons">
                         <a href="tel:+15551234567" class="btn btn-outline btn-sm">
                             <i class="fas fa-phone"></i> Call Us
@@ -239,10 +276,244 @@
 </section>
 
 <script>
-    // Load components.js if not already loaded
-    if (typeof createCarCard === 'undefined') {
-        var script = document.createElement('script');
-        script.src = '/js/components.js';
-        document.head.appendChild(script);
+    // ============================================
+    // Update Selected Car Info Dynamically
+    // ============================================
+    function updateSelectedCarInfo() {
+        var select = document.getElementById('carSelect');
+        var container = document.getElementById('selectedCarInfo');
+        var maxAvailableSpan = document.getElementById('maxAvailable');
+        var quantityInput = document.getElementById('quantity');
+        
+        if (!select || !container) return;
+        
+        var selectedOption = select.options[select.selectedIndex];
+        if (!selectedOption || !selectedOption.value) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 0.5rem 0;">
+                    <p style="color: #64748b; margin: 0;">
+                        <i class="fas fa-info-circle" style="color: #94a3b8;"></i>
+                        Please select a car from the dropdown above
+                    </p>
+                </div>
+            `;
+            if (maxAvailableSpan) maxAvailableSpan.textContent = '0';
+            if (quantityInput) quantityInput.max = 0;
+            return;
+        }
+        
+        var data = selectedOption.dataset;
+        var name = data.name || 'Unknown';
+        var model = data.model || '';
+        var price = data.price || 0;
+        var fuel = data.fuel || 'N/A';
+        var seats = data.seats || 'N/A';
+        var trans = data.trans || 'N/A';
+        var year = data.year || 'N/A';
+        var quantity = data.quantity || 0;
+        var image = data.image || '/images/default-car.jpg';
+        
+        // Update max available
+        if (maxAvailableSpan) maxAvailableSpan.textContent = quantity;
+        if (quantityInput) {
+            quantityInput.max = quantity;
+            if (parseInt(quantityInput.value) > quantity) {
+                quantityInput.value = quantity;
+            }
+        }
+        
+        // Build the HTML
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-check-circle" style="color: #2563eb; font-size: 1.2rem;"></i>
+                <h4 style="margin: 0; color: #1e293b; font-size: 0.95rem; font-weight: 600;">Selected Car:</h4>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem;">
+                <span style="font-size: 1.2rem; font-weight: 700; color: #0f172a;">
+                    ${name} ${model}
+                </span>
+                <span style="background: #2563eb; color: white; padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">
+                    $${price}/day
+                </span>
+                <span style="color: #475569; font-size: 0.9rem;">
+                    <i class="fas fa-gas-pump" style="color: #2563eb;"></i> ${fuel}
+                </span>
+                <span style="color: #475569; font-size: 0.9rem;">
+                    <i class="fas fa-users" style="color: #2563eb;"></i> ${seats} seats
+                </span>
+                <span style="color: #475569; font-size: 0.9rem;">
+                    <i class="fas fa-cog" style="color: #2563eb;"></i> ${trans}
+                </span>
+                <span style="color: #475569; font-size: 0.9rem;">
+                    <i class="fas fa-calendar" style="color: #2563eb;"></i> ${year}
+                </span>
+                <span style="background: #d1fae5; color: #065f46; padding: 0.2rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600;">
+                    <i class="fas fa-boxes"></i> ${quantity} available
+                </span>
+            </div>
+        `;
+        
+        // Update total price
+        if (typeof updateTotalPrice === 'function') {
+            updateTotalPrice();
+        }
     }
+
+    // ============================================
+    // Quantity Update Function
+    // ============================================
+    function updateQuantity(change) {
+        var quantityInput = document.getElementById('quantity');
+        if (!quantityInput) return;
+        
+        var currentValue = parseInt(quantityInput.value) || 0;
+        var newValue = currentValue + change;
+        var max = parseInt(quantityInput.getAttribute('max')) || 10;
+        var min = parseInt(quantityInput.getAttribute('min')) || 1;
+        
+        if (newValue < min) newValue = min;
+        if (newValue > max) newValue = max;
+        
+        quantityInput.value = newValue;
+        
+        if (typeof updateTotalPrice === 'function') {
+            updateTotalPrice();
+        }
+    }
+
+    // ============================================
+    // Load Cars into Select Dropdown and Auto-select
+    // ============================================
+    function loadAvailableCars() {
+        var select = document.getElementById('carSelect');
+        if (!select) return;
+
+        var selectedValue = select.value;
+        
+        if (selectedValue) {
+            console.log('Car already selected:', selectedValue);
+            updateSelectedCarInfo();
+            if (typeof updateTotalPrice === 'function') {
+                updateTotalPrice();
+            }
+            return;
+        }
+
+        if (select.options.length > 1) {
+            var hasSelected = false;
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].selected && select.options[i].value !== '') {
+                    hasSelected = true;
+                    break;
+                }
+            }
+            
+            if (!hasSelected && select.options.length > 1) {
+                select.options[1].selected = true;
+                console.log('Auto-selected first car:', select.options[1].text);
+            }
+            
+            updateSelectedCarInfo();
+            if (typeof updateTotalPrice === 'function') {
+                updateTotalPrice();
+            }
+        }
+    }
+
+    // ============================================
+    // Calculate and Update Total Price
+    // ============================================
+    function updateTotalPrice() {
+        var carSelect = document.getElementById('carSelect');
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+        var quantityInput = document.getElementById('quantity');
+        var totalDisplay = document.getElementById('totalPrice');
+
+        if (!carSelect || !startDate || !endDate || !totalDisplay || !quantityInput) return;
+
+        var selectedOption = carSelect.options[carSelect.selectedIndex];
+        if (!selectedOption || !selectedOption.dataset.price) {
+            totalDisplay.style.display = 'none';
+            return;
+        }
+
+        var pricePerDay = parseInt(selectedOption.dataset.price);
+        var quantity = parseInt(quantityInput.value) || 1;
+        var start = new Date(startDate.value);
+        var end = new Date(endDate.value);
+
+        if (start && end && end > start) {
+            var days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            var total = days * pricePerDay * quantity;
+            totalDisplay.textContent = 'Total: $' + total + ' (' + days + ' days, ' + quantity + ' car' + (quantity > 1 ? 's' : '') + ')';
+            totalDisplay.style.display = 'block';
+            totalDisplay.style.animation = 'fadeIn 0.3s ease';
+        } else {
+            totalDisplay.style.display = 'none';
+        }
+    }
+
+    // ============================================
+    // Set Minimum Dates for Date Inputs
+    // ============================================
+    function setMinDates() {
+        var today = new Date();
+        var year = today.getFullYear();
+        var month = String(today.getMonth() + 1).padStart(2, '0');
+        var day = String(today.getDate()).padStart(2, '0');
+        var todayString = year + '-' + month + '-' + day;
+
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+
+        if (startDate) {
+            startDate.setAttribute('min', todayString);
+            startDate.addEventListener('change', function() {
+                if (endDate) {
+                    endDate.setAttribute('min', this.value);
+                    if (endDate.value && endDate.value <= this.value) {
+                        endDate.value = '';
+                    }
+                }
+                if (typeof updateTotalPrice === 'function') {
+                    updateTotalPrice();
+                }
+            });
+        }
+    }
+
+    // ============================================
+    // Initialize on DOM ready
+    // ============================================
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAvailableCars();
+            setMinDates();
+            
+            // Add event listeners
+            var startDateEl = document.getElementById('startDate');
+            var endDateEl = document.getElementById('endDate');
+            var carSelectEl = document.getElementById('carSelect');
+            var quantityEl = document.getElementById('quantity');
+
+            if (startDateEl) startDateEl.addEventListener('change', updateTotalPrice);
+            if (endDateEl) endDateEl.addEventListener('change', updateTotalPrice);
+            if (carSelectEl) {
+                carSelectEl.addEventListener('change', function() {
+                    updateSelectedCarInfo();
+                    updateTotalPrice();
+                });
+            }
+            if (quantityEl) {
+                quantityEl.addEventListener('change', updateTotalPrice);
+                quantityEl.addEventListener('input', updateTotalPrice);
+            }
+        });
+    } else {
+        loadAvailableCars();
+        setMinDates();
+    }
+
+    console.log('Booking JavaScript loaded successfully with dynamic car info!');
 </script>
