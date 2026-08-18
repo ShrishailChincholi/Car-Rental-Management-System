@@ -25,12 +25,20 @@ router.get('/', async function(req, res) {
 });
 
 // ============================================
-// About page
+// About page - FIXED
 // ============================================
 router.get('/about', function(req, res) {
-    res.render('pages/about', {
-        title: 'About Us'
-    });
+    try {
+        res.render('pages/about', {
+            title: 'About Us'
+        });
+    } catch (error) {
+        console.error('About page error:', error);
+        res.status(500).render('pages/error', {
+            title: 'Error',
+            message: 'Failed to load about page'
+        });
+    }
 });
 
 // ============================================
@@ -91,28 +99,17 @@ router.get('/cars', async function(req, res) {
 router.get('/booking', async function(req, res) {
     try {
         const carId = req.query.car;
-        console.log('📝 Booking page - Car ID from URL:', carId);
-        
         let selectedCar = null;
         let cars = [];
         
-        // Get all available cars with quantity > 0
         cars = await Car.find({ availableQuantity: { $gt: 0 } });
-        console.log('📋 Total available cars:', cars.length);
         
         if (carId) {
             selectedCar = await Car.findById(carId);
-            if (selectedCar) {
-                console.log('✅ Selected car found:', selectedCar.name, selectedCar.model);
-                console.log('📊 Available quantity:', selectedCar.availableQuantity);
-            } else {
-                console.log('❌ Car not found with ID:', carId);
-            }
         }
         
         if (!selectedCar && cars.length > 0) {
             selectedCar = cars[0];
-            console.log('🔄 Using first available car as default:', selectedCar.name, selectedCar.model);
         }
         
         res.render('pages/booking', {
@@ -121,10 +118,130 @@ router.get('/booking', async function(req, res) {
             selectedCar: selectedCar
         });
     } catch (error) {
-        console.error('❌ Booking page error:', error);
+        console.error('Booking page error:', error);
         res.status(500).render('pages/error', {
             title: 'Error',
             message: 'Failed to load booking page'
+        });
+    }
+});
+
+// ============================================
+// Booking creation
+// ============================================
+router.post('/booking/create', async function(req, res) {
+    try {
+        const Booking = require('../models/Booking');
+        const { carId, name, email, phone, address, startDate, endDate, specialRequests, quantity } = req.body;
+        
+        const bookingQuantity = parseInt(quantity) || 1;
+        
+        if (!carId || !name || !email || !phone || !startDate || !endDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'All required fields must be filled'
+            });
+        }
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (start < today) {
+            return res.status(400).json({
+                success: false,
+                message: 'Start date cannot be in the past'
+            });
+        }
+        
+        if (start >= end) {
+            return res.status(400).json({
+                success: false,
+                message: 'End date must be after start date'
+            });
+        }
+        
+        const car = await Car.findById(carId);
+        if (!car) {
+            return res.status(400).json({
+                success: false,
+                message: 'Car not found'
+            });
+        }
+        
+        if (car.availableQuantity < bookingQuantity) {
+            return res.status(400).json({
+                success: false,
+                message: 'Sorry, only ' + car.availableQuantity + ' cars available for booking'
+            });
+        }
+        
+        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+        const totalPrice = days * car.pricePerDay * bookingQuantity;
+        
+        const booking = new Booking({
+            carId: car._id,
+            carName: car.name + ' ' + car.model,
+            quantity: bookingQuantity,
+            user: {
+                name: name,
+                email: email,
+                phone: phone,
+                address: address || ''
+            },
+            rentalDates: {
+                startDate: start,
+                endDate: end
+            },
+            totalPrice: totalPrice,
+            specialRequests: specialRequests || '',
+            status: 'Pending'
+        });
+        
+        await booking.save();
+        
+        car.availableQuantity -= bookingQuantity;
+        car.bookedQuantity += bookingQuantity;
+        car.availability = car.availableQuantity > 0;
+        await car.save();
+        
+        res.status(201).json({
+            success: true,
+            message: 'Booking created successfully',
+            bookingId: booking._id,
+            remainingQuantity: car.availableQuantity
+        });
+    } catch (error) {
+        console.error('Booking creation error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create booking'
+        });
+    }
+});
+
+// ============================================
+// Booking confirmation
+// ============================================
+router.get('/booking/confirmation/:id', async function(req, res) {
+    try {
+        const Booking = require('../models/Booking');
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).render('pages/404', {
+                title: 'Booking Not Found'
+            });
+        }
+        res.render('pages/confirmation', {
+            title: 'Booking Confirmation',
+            booking: booking
+        });
+    } catch (error) {
+        console.error('Confirmation error:', error);
+        res.status(500).render('pages/error', {
+            title: 'Error',
+            message: 'Failed to load booking confirmation'
         });
     }
 });
@@ -198,127 +315,18 @@ router.get('/api/cars/available', async function(req, res) {
 });
 
 // ============================================
-// Booking creation with quantity
+// Health check (for Render)
 // ============================================
-router.post('/booking/create', async function(req, res) {
-    try {
-        const Booking = require('../models/Booking');
-        const { carId, name, email, phone, address, startDate, endDate, specialRequests, quantity } = req.body;
-        
-        const bookingQuantity = parseInt(quantity) || 1;
-        
-        if (!carId || !name || !email || !phone || !startDate || !endDate) {
-            return res.status(400).json({
-                success: false,
-                message: 'All required fields must be filled'
-            });
-        }
-        
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        if (start < today) {
-            return res.status(400).json({
-                success: false,
-                message: 'Start date cannot be in the past'
-            });
-        }
-        
-        if (start >= end) {
-            return res.status(400).json({
-                success: false,
-                message: 'End date must be after start date'
-            });
-        }
-        
-        const car = await Car.findById(carId);
-        if (!car) {
-            return res.status(400).json({
-                success: false,
-                message: 'Car not found'
-            });
-        }
-        
-        // Check if enough quantity is available
-        if (car.availableQuantity < bookingQuantity) {
-            return res.status(400).json({
-                success: false,
-                message: 'Sorry, only ' + car.availableQuantity + ' cars available for booking'
-            });
-        }
-        
-        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-        const totalPrice = days * car.pricePerDay * bookingQuantity;
-        
-        // Create booking
-        const booking = new Booking({
-            carId: car._id,
-            carName: car.name + ' ' + car.model,
-            quantity: bookingQuantity,
-            user: {
-                name: name,
-                email: email,
-                phone: phone,
-                address: address || ''
-            },
-            rentalDates: {
-                startDate: start,
-                endDate: end
-            },
-            totalPrice: totalPrice,
-            specialRequests: specialRequests || '',
-            status: 'Pending'
-        });
-        
-        await booking.save();
-        
-        // Update car quantities
-        car.availableQuantity -= bookingQuantity;
-        car.bookedQuantity += bookingQuantity;
-        car.availability = car.availableQuantity > 0;
-        await car.save();
-        
-        res.status(201).json({
-            success: true,
-            message: 'Booking created successfully',
-            bookingId: booking._id,
-            remainingQuantity: car.availableQuantity
-        });
-    } catch (error) {
-        console.error('Booking creation error:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to create booking'
-        });
-    }
-});
-
-router.get('/booking/confirmation/:id', async function(req, res) {
-    try {
-        const Booking = require('../models/Booking');
-        const booking = await Booking.findById(req.params.id);
-        if (!booking) {
-            return res.status(404).render('pages/404', {
-                title: 'Booking Not Found'
-            });
-        }
-        res.render('pages/confirmation', {
-            title: 'Booking Confirmation',
-            booking: booking
-        });
-    } catch (error) {
-        console.error('Confirmation error:', error);
-        res.status(500).render('pages/error', {
-            title: 'Error',
-            message: 'Failed to load booking confirmation'
-        });
-    }
+router.get('/health', function(req, res) {
+    res.status(200).json({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
 });
 
 // ============================================
-// 404 handler
+// 404 handler - MUST BE AT THE END
 // ============================================
 router.use(function(req, res) {
     res.status(404).render('pages/404', {
