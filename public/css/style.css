@@ -2558,9 +2558,6 @@ h1, h2, h3, h4, h5, h6 {
 .gap-4 { gap: 2rem; }
 
 
-/* ============================================
-   HOW IT WORKS SECTION - FIXED
-   ============================================ */
 .how-it-works {
     padding: 5rem 0;
     background: var(--white);
@@ -2676,9 +2673,6 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto;
 }
 
-/* ============================================
-   HOW IT WORKS - RESPONSIVE
-   ============================================ */
 @media (max-width: 1024px) {
     .steps {
         gap: 2rem;
@@ -2761,10 +2755,6 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-
-/* ============================================
-   SELECTED CAR INFO - BOOKING PAGE
-   ============================================ */
 .selected-car-info {
     background: linear-gradient(135deg, #f0f7ff 0%, #e8f0fe 100%);
     padding: 1.2rem 1.5rem;
